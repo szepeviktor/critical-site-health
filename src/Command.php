@@ -31,46 +31,42 @@ class Command extends WP_CLI_Command
         $yamlPath = $args[0];
 
         if (! file_exists($yamlPath)) {
-            WP_CLI::error('YAML file not found at: ' . $yamlPath);
+            WP_CLI::error(sprintf('YAML file not found at: %s', $yamlPath));
         }
 
         try {
             $checks = Spyc::YAMLLoad($yamlPath);
         } catch (\Throwable $e) {
-            WP_CLI::error('Failed to parse YAML: ' . $e->getMessage());
+            WP_CLI::error(sprintf('Failed to parse YAML: %s', $e->getMessage()));
         }
 
         $hadWarning = false;
 
         // Option values
-        if (isset($checks['option'])) {
+        if (isset($checks['option']) && is_array($checks['option'])) {
             foreach ($checks['option'] as $option => $expected) {
                 $actual = get_option($option);
-                if ($actual === $expected) {
-                    continue;
+                if ($actual !== $expected) {
+                    WP_CLI::warning(sprintf('Option %s: expected "%s", got "%s"', $option, $expected, $actual));
+                    $hadWarning = true;
                 }
-
-                WP_CLI::warning("Option '$option': expected '$expected', got '$actual'");
-                $hadWarning = true;
             }
         }
 
         // Global constants
-        if (isset($checks['global_constant'])) {
+        if (isset($checks['global_constant']) && is_array($checks['global_constant'])) {
             foreach ($checks['global_constant'] as $name => $expected) {
                 if (! defined($name)) {
-                    WP_CLI::warning("Constant '$name' is not defined.");
+                    WP_CLI::warning(sprintf('Constant "%s" is not defined.', $name));
                     $hadWarning = true;
                     continue;
                 }
 
                 $actual = constant($name);
-                if ($actual === $expected) {
-                    continue;
+                if ($actual !== $expected) {
+                    WP_CLI::warning(sprintf('Constant %s: expected "%s", got "%s"', $name, $expected, $actual));
+                    $hadWarning = true;
                 }
-
-                WP_CLI::warning("Constant '$name': expected '$expected', got '$actual'");
-                $hadWarning = true;
             }
         }
 
@@ -78,18 +74,16 @@ class Command extends WP_CLI_Command
         if (isset($checks['class_constant']) && is_array($checks['class_constant'])) {
             foreach ($checks['class_constant'] as $const => $expected) {
                 if (! defined($const)) {
-                    WP_CLI::warning("Class constant '$const' is not defined.");
+                    WP_CLI::warning(sprintf('Class constant "%s" is not defined.', $const));
                     $hadWarning = true;
                     continue;
                 }
 
                 $actual = constant($const);
-                if ($actual === $expected) {
-                    continue;
+                if ($actual !== $expected) {
+                    WP_CLI::warning(sprintf('Class constant %s: expected "%s", got "%s"', $const, $expected, $actual));
+                    $hadWarning = true;
                 }
-
-                WP_CLI::warning("Class constant '$const': expected '$expected', got '$actual'");
-                $hadWarning = true;
             }
         }
 
@@ -97,7 +91,7 @@ class Command extends WP_CLI_Command
         if (isset($checks['class_method']) && is_array($checks['class_method'])) {
             foreach ($checks['class_method'] as $callable => $expected) {
                 if (! is_callable($callable)) {
-                    WP_CLI::warning("Method '$callable' is not callable.");
+                    WP_CLI::warning(sprintf('Method "%s" is not callable.', $callable));
                     $hadWarning = true;
                     continue;
                 }
@@ -106,11 +100,11 @@ class Command extends WP_CLI_Command
                     // phpcs:disable NeutronStandard.Functions.DisallowCallUserFunc.CallUserFunc
                     $actual = call_user_func($callable);
                     if ($actual !== $expected) {
-                        WP_CLI::warning("Method '$callable': expected '$expected', got '$actual'");
+                        WP_CLI::warning(sprintf('Method %s: expected "%s", got "%s"', $callable, $expected, $actual));
                         $hadWarning = true;
                     }
                 } catch (\Throwable $e) {
-                    WP_CLI::warning("Method '$callable' failed: " . $e->getMessage());
+                    WP_CLI::warning(sprintf('Method %s failed: %s', $callable, $e->getMessage()));
                     $hadWarning = true;
                 }
             }
@@ -123,11 +117,11 @@ class Command extends WP_CLI_Command
                     // phpcs:disable Generic.PHP.ForbiddenFunctions.Found,Squiz.PHP.Eval.Discouraged
                     $result = eval(sprintf('return %s;', $expr));
                     if ($result !== true) {
-                        WP_CLI::warning("Eval failed: '$expr' returned '$result'");
+                        WP_CLI::warning(sprintf('Eval failed: %s returned "%s"', $expr, var_export($result, true)));
                         $hadWarning = true;
                     }
                 } catch (\ParseError $e) {
-                    WP_CLI::warning('Eval error: ' . $e->getMessage());
+                    WP_CLI::warning(sprintf('Eval error: %s', $e->getMessage()));
                     $hadWarning = true;
                 }
             }
