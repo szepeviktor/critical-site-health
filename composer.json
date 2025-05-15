@@ -1,0 +1,30 @@
+{
+    "name": "szepeviktor/site-health-command",
+    "description": "Check critical values in your WordPress installation",
+    "type": "wp-cli-package",
+    "require": {
+        "php": ">=7.4",
+        "wp-cli/wp-cli": "^2.0"
+    },
+    "require-dev": {
+        "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^1.1",
+        "wp-coding-standards/wpcs": "3.1.0 as 2.3.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SzepeViktor\\WP_CLI\\SiteHealth\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Viktor Szépe",
+            "email": "viktor@szepe.net"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
