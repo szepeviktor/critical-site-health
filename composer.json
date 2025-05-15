@@ -14,7 +14,10 @@
     "autoload": {
         "psr-4": {
             "SzepeViktor\\WP_CLI\\SiteHealth\\": "src/"
-        }
+        },
+        "files": [
+            "site-health-command.php"
+        ]
     },
     "authors": [
         {
