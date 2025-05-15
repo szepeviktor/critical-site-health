@@ -1,6 +1,19 @@
-`wp site-health check`
+# Critical site health
 
-`critical-site-health.yml`
+Check critical values in your WordPress installation with this WP-CLI command.
+
+```shell
+wp site-health check critical-site-health.yml
+```
+
+## Checks
+
+- options
+- global constants
+- class constants
+- static class methods
+- PHP expressions
+
 ```yaml
 ---
 # I should be self-sufficient.
