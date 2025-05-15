@@ -37,7 +37,7 @@ class_method:
 # Should return true
 eval:
     - |
-        gethostbyname(parse_url(get_bloginfo('url'), PHP_URL_HOST)) === shell_exec('hostname -i')
+        gethostbyname(parse_url(get_bloginfo('url'), PHP_URL_HOST)) === trim(shell_exec('hostname -i'))
     - |
         WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
     - |

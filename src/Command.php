@@ -64,7 +64,12 @@ class Command extends WP_CLI_Command
 
                 $actual = constant($name);
                 if ($actual !== $expected) {
-                    $this->emitWarning('Constant %s: expected "%s", got "%s"', $name, $expected, $actual);
+                    $this->emitWarning(
+                        'Constant %s: expected "%s", got "%s"',
+                        $name,
+                        var_export($expected, true),
+                        var_export($actual, true)
+                    );
                 }
             }
         }
