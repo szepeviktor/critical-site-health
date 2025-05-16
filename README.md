@@ -41,7 +41,9 @@ eval:
     - |
         WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
     - |
-        perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
-    - |
         WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true]) === '1'
+    - |
+        wp_get_theme()->get_stylesheet() === 'custom-child-theme'
+    - |
+        function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
 ```
