@@ -10,6 +10,8 @@ use WP_CLI_Command;
 
 use function get_option;
 
+// phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
+
 class Command extends WP_CLI_Command
 {
     protected bool $hadWarning;
@@ -36,6 +38,8 @@ class Command extends WP_CLI_Command
             WP_CLI::error(sprintf('YAML file not found at: %s', $yamlPath));
         }
 
+        WP_CLI::debug('Using configuration file: '.$yamlPath, 'site-health');
+
         try {
             $checks = Spyc::YAMLLoad($yamlPath);
         } catch (\Throwable $e) {
@@ -47,6 +51,8 @@ class Command extends WP_CLI_Command
         // Option values
         if (isset($checks['option']) && is_array($checks['option'])) {
             foreach ($checks['option'] as $option => $expected) {
+                WP_CLI::debug('Checking option: '.$option, 'site-health');
+
                 $actual = get_option($option);
                 if ($actual !== $expected) {
                     $this->emitWarning('Option %s: expected "%s", got "%s"', $option, $expected, $actual);
@@ -61,6 +67,8 @@ class Command extends WP_CLI_Command
                     $this->emitWarning('Constant "%s" is not defined.', $name);
                     continue;
                 }
+
+                WP_CLI::debug('Checking constant: '.$name, 'site-health');
 
                 $actual = constant($name);
                 if ($actual !== $expected) {
@@ -82,6 +90,8 @@ class Command extends WP_CLI_Command
                     continue;
                 }
 
+                WP_CLI::debug('Checking constant: '.$const, 'site-health');
+
                 $actual = constant($const);
                 if ($actual !== $expected) {
                     $this->emitWarning('Class constant %s: expected "%s", got "%s"', $const, $expected, $actual);
@@ -96,6 +106,8 @@ class Command extends WP_CLI_Command
                     $this->emitWarning('Method "%s" is not callable.', $callable);
                     continue;
                 }
+
+                WP_CLI::debug('Checking method: '.$callable, 'site-health');
 
                 try {
                     // phpcs:disable NeutronStandard.Functions.DisallowCallUserFunc.CallUserFunc
@@ -112,6 +124,8 @@ class Command extends WP_CLI_Command
         // Eval expressions
         if (isset($checks['eval']) && is_array($checks['eval'])) {
             foreach ($checks['eval'] as $expr) {
+                WP_CLI::debug('Running: '.$expr, 'site-health');
+
                 try {
                     // phpcs:disable Generic.PHP.ForbiddenFunctions.Found,Squiz.PHP.Eval.Discouraged
                     $result = eval(sprintf('return %s;', $expr));
