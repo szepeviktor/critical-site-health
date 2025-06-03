@@ -18,7 +18,7 @@ wp site-health check critical-site-health.yml
 ---
 # I should be self-sufficient.
 option:
-    "blog_public": "0"
+    "blog_public": "1"
     "blog_charset": "UTF-8"
     "users_can_register": "0"
     "admin_email": "admin@szepe.net"
@@ -46,7 +46,7 @@ eval:
     - |
         WP_CLI::runcommand('plugin verify-checksums --quiet --all', ['return' => 'return_code']) === 0
     - |
-        get_plugins()["wp-redis/wp-redis.php"]["Name"] === 'WP Redis'
+        get_plugins()['wp-redis/wp-redis.php']['Name'] === 'WP Redis'
     - |
         WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
     - |
