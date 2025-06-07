@@ -56,6 +56,9 @@ eval:
     # Plugin files are unchanged
     - |
         WP_CLI::runcommand('plugin verify-checksums --quiet --all', ['return' => 'return_code']) === 0
+    # Database is up-to-date
+    - |
+        WP_CLI::runcommand('core update-db --quiet --dry-run', ['return' => 'return_code']) === 0
     # WP Redis plugin is installed
     - |
         get_plugins()['wp-redis/wp-redis.php']['Name'] === 'WP Redis'
@@ -65,6 +68,9 @@ eval:
     # There is 1 administrator
     - |
         WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true]) === '1'
+    # This is a production environment
+    - |
+        wp_get_environment_type() === 'production'
     # The current theme is custom-child-theme
     - |
         wp_get_theme()->get_stylesheet() === 'custom-child-theme'
