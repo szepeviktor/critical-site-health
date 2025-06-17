@@ -65,6 +65,9 @@ eval:
     # WP Redis is in use
     - |
         WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
+    # Auto updated plugins exist
+    - |
+        array_reduce(get_option('auto_update_plugins',[]), function($e,$p) {return $e && file_exists(WP_PLUGIN_DIR.'/'.$p);},true)
     # There is 1 administrator
     - |
         WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true]) === '1'
