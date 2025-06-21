@@ -28,8 +28,10 @@ There are 5 kinds of checks.
 option:
     "blog_public": "1"
     "blog_charset": "UTF-8"
+    "WPLANG": "en_US"
     "users_can_register": "0"
     "admin_email": "admin@szepe.net"
+    "wp_mailfrom_ii_email": "webmaster@szepe.net"
     "woocommerce_shop_page_id": "5372"
     "woocommerce_cart_page_id": "5362"
     "woocommerce_checkout_page_id": "5363"
@@ -59,6 +61,9 @@ eval:
     # Database is up-to-date
     - |
         WP_CLI::runcommand('core update-db --quiet --dry-run', ['return' => 'return_code']) === 0
+    # All active plugins are compatible with core
+    - |
+        array_reduce(get_option('active_plugins'), function ($c,$p) {return $c && version_compare(get_plugin_data(WP_PLUGIN_DIR.'/'.$p)['RequiresWP'],get_bloginfo('version'),'<=');},true)
     # WP Redis plugin is installed
     - |
         get_plugins()['wp-redis/wp-redis.php']['Name'] === 'WP Redis'
@@ -83,6 +88,10 @@ eval:
     # WP-Cron is running
     - |
         ($c=_get_cron_array()) && array_key_first(ksort($c, SORT_NUMERIC) ? $c : []) > time() - HOUR_IN_SECONDS
+    # Tracking code is included in the homepage
+    - >
+        strpos(wp_remote_retrieve_body(wp_remote_get(home_url())),
+            '<script async src="https://www.googletagmanager.com/gtag/js?id=G-1111111111"></script>') > 10000
     # Ping https://healthchecks.io/
     - |
         wp_remote_retrieve_response_code(wp_remote_get('https://hc-ping.com/YOUR-HC-UUID')) === 200
