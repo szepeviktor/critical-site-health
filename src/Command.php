@@ -60,9 +60,15 @@ class Command extends WP_CLI_Command
             }
         }
 
-        // Global constants
+        // Constants
         if (isset($checks['global_constant']) && is_array($checks['global_constant'])) {
-            foreach ($checks['global_constant'] as $name => $expected) {
+            $checks['constant'] = array_merge($checks['global_constant'], $checks['constant']);
+        }
+        if (isset($checks['class_constant']) && is_array($checks['class_constant'])) {
+            $checks['constant'] = array_merge($checks['class_constant'], $checks['constant']);
+        }
+        if (isset($checks['constant']) && is_array($checks['constant'])) {
+            foreach ($checks['constant'] as $name => $expected) {
                 if (! defined($name)) {
                     $this->emitWarning('Constant "%s" is not defined.', $name);
                     continue;
@@ -78,23 +84,6 @@ class Command extends WP_CLI_Command
                         var_export($expected, true),
                         var_export($actual, true)
                     );
-                }
-            }
-        }
-
-        // Class constants
-        if (isset($checks['class_constant']) && is_array($checks['class_constant'])) {
-            foreach ($checks['class_constant'] as $const => $expected) {
-                if (! defined($const)) {
-                    $this->emitWarning('Class constant "%s" is not defined.', $const);
-                    continue;
-                }
-
-                WP_CLI::debug('Checking constant: ' . $const, 'site-health');
-
-                $actual = constant($const);
-                if ($actual !== $expected) {
-                    $this->emitWarning('Class constant %s: expected "%s", got "%s"', $const, $expected, $actual);
                 }
             }
         }

@@ -17,8 +17,7 @@ wp package install https://github.com/szepeviktor/critical-site-health.git
 There are 5 kinds of checks.
 
 - options
-- global constants
-- class constants
+- constants
 - static class methods
 - PHP expressions
 
@@ -39,13 +38,17 @@ option:
     "woocommerce_refund_returns_page_id": "5364"
     "woocommerce_terms_page_id": "74"
     "woocommerce_coming_soon": "no"
-global_constant:
+    "woocommerce_logs_logging_enabled": "yes"
+    "woocommerce_logs_level_threshold": "info"
+constant:
     "WP_DEBUG": false
     "DISALLOW_FILE_EDIT": true
     "DISABLE_WP_CRON": true
     "WP_CACHE_KEY_SALT": "prefix:"
-class_constant:
-    "Company\\THEME_VERSION": "0.0.0"
+    # Namespaced constant
+    "Company\Theme\THEME_VERSION": "0.0.0"
+    # Class constant
+    "Company\Theme::THEME_VERSION": "0.0.0"
 class_method:
     "Company::version": "1.0.0"
 # Should return true
@@ -68,6 +71,9 @@ eval:
     # Auto updated plugins exist
     - |
         array_reduce(get_option('auto_update_plugins',[]), function($e,$p) {return $e && file_exists(WP_PLUGIN_DIR.'/'.$p);},true)
+    # No update failed
+    - |
+        file_exists(WP_CONTENT_DIR.'/upgrade-temp-backup') === false && count(scandir(WP_CONTENT_DIR.'/upgrade')) === 2
     # This is a production environment
     - |
         wp_get_environment_type() === 'production'
