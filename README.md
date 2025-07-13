@@ -46,9 +46,9 @@ constant:
     "DISABLE_WP_CRON": true
     "WP_CACHE_KEY_SALT": "prefix:"
     # Namespaced constant
-    "Company\Theme\THEME_VERSION": "0.0.0"
+    "Company\Theme\VERSION": "0.0.0"
     # Class constant
-    "Company\Theme::THEME_VERSION": "0.0.0"
+    "Company\Theme::VERSION": "0.0.0"
 class_method:
     "Company::version": "1.0.0"
 # Should return true
@@ -56,6 +56,9 @@ eval:
     # IP address of WordPress home URL equals server's primary IP address
     - |
         gethostbyname(parse_url(get_bloginfo('url'), PHP_URL_HOST)) === trim(shell_exec('hostname -i'))
+    # This is a production environment
+    - |
+        wp_get_environment_type() === 'production'
     # Core files are unchanged
     - |
         WP_CLI::runcommand('core verify-checksums --quiet', ['return' => 'return_code']) === 0
@@ -74,9 +77,6 @@ eval:
     # No update failed
     - |
         file_exists(WP_CONTENT_DIR.'/upgrade-temp-backup') === false && count(scandir(WP_CONTENT_DIR.'/upgrade')) === 2
-    # This is a production environment
-    - |
-        wp_get_environment_type() === 'production'
     # The current theme is custom-child-theme
     - |
         wp_get_theme()->get_stylesheet() === 'custom-child-theme'
@@ -95,6 +95,9 @@ eval:
     # webp-uploads: WebP uploading is enabled
     - |
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
+    # robots.txt is generated
+    - |
+        wp_remote_retrieve_response_code(wp_remote_get(home_url('/robots.txt'))) === 200
     # Tracking code is included in the homepage
     - >
         strpos(wp_remote_retrieve_body(wp_remote_get(home_url())),
