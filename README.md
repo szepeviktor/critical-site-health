@@ -53,6 +53,9 @@ class_method:
     "Company::version": "1.0.0"
 # Should return true
 eval:
+    # Check git working tree status
+    - |
+        exec('git -C /home/PROJECT/website/code status -s -uno', $output, $exit) === '' && $exit === 0
     # IP address of WordPress home URL equals server's primary IP address
     - |
         gethostbyname(parse_url(get_bloginfo('url'), PHP_URL_HOST)) === trim(shell_exec('hostname -i'))
@@ -86,6 +89,9 @@ eval:
     # WP-Cron is running
     - |
         ($c=_get_cron_array()) && array_key_first(ksort($c, SORT_NUMERIC) ? $c : []) > time() - HOUR_IN_SECONDS
+    # Redis extension is installed
+    - |
+        in_array('redis', get_loaded_extensions())
     # wp-redis: WP Redis plugin is installed
     - |
         get_plugins()['wp-redis/wp-redis.php']['Name'] === 'WP Redis'
