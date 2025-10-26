@@ -42,6 +42,7 @@ option:
     "woocommerce_logs_level_threshold": "info"
 constant:
     "WP_DEBUG": false
+    "SCRIPT_DEBUG": false
     "DISALLOW_FILE_EDIT": true
     "DISABLE_WP_CRON": true
     "WP_CACHE_KEY_SALT": "prefix:"
@@ -101,6 +102,12 @@ eval:
     # webp-uploads: WebP uploading is enabled
     - |
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
+    # woocommerce: Using same payment gateways
+    - |
+        array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ["paypal"]
+    # woocommerce: REST API keys are unchanged
+    - |
+        trim(WP_CLI::runcommand('db query "CHECKSUM TABLE wp_woocommerce_api_keys EXTENDED" --skip-column-names', ['return' => true])) === "wpdb.wp_woocommerce_api_keys\t1111111111"
     # robots.txt is generated
     - |
         wp_remote_retrieve_response_code(wp_remote_get(home_url('/robots.txt'))) === 200
