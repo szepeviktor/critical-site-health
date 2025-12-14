@@ -25,6 +25,7 @@ There are 5 kinds of checks.
 ---
 # I should be self-sufficient.
 option:
+    "home": "https://example.com"
     "blog_public": "1"
     "blog_charset": "UTF-8"
     "WPLANG": "en_US"
@@ -84,6 +85,9 @@ eval:
     # The current theme is custom-child-theme
     - |
         wp_get_theme()->get_stylesheet() === 'custom-child-theme'
+    # Custom CSS is unchanged
+    - |
+        md5(wp_get_custom_css()) === 'd41d8cd98f00b204e9800998ecf8427e'
     # There is 1 administrator
     - |
         WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true]) === '1'
@@ -104,7 +108,7 @@ eval:
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
     # woocommerce: Using same payment gateways
     - |
-        array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ["paypal"]
+        array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ['paypal']
     # woocommerce: REST API keys are unchanged
     - |
         trim(WP_CLI::runcommand('db query "CHECKSUM TABLE wp_woocommerce_api_keys EXTENDED" --skip-column-names', ['return' => true])) === "wpdb.wp_woocommerce_api_keys\t1111111111"
