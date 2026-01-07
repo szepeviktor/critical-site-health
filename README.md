@@ -55,6 +55,9 @@ class_method:
     "Company::version": "1.0.0"
 # Should return true
 eval:
+    # Check file owner
+    - |
+        exec('find /home/PROJECT/website/code/ -not -user $USER', $output, $exit_status) === '' && $exit_status === 0
     # Check git working tree status
     - |
         exec('git -C /home/PROJECT/website/code status -s -uno', $output, $exit) === '' && $exit === 0
