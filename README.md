@@ -109,6 +109,9 @@ eval:
     # webp-uploads: WebP uploading is enabled
     - |
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
+    # woocommerce: HPOS
+    - |
+        Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled()
     # woocommerce: Using same payment gateways
     - |
         array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ['paypal']
