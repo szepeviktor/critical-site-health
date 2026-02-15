@@ -106,6 +106,9 @@ eval:
     # wp-redis: WP Redis is in use
     - |
         WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
+    # wp-redis: No transients in the database
+    - |
+        WP_CLI::runcommand('transient list --quiet --format=count', ['return' => true]) === '0'
     # webp-uploads: WebP uploading is enabled
     - |
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
