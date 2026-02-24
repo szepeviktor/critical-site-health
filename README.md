@@ -84,7 +84,7 @@ eval:
         array_reduce(get_option('auto_update_plugins',[]), function($e,$p) {return $e && file_exists(WP_PLUGIN_DIR.'/'.$p);},true)
     # No update failed
     - |
-        file_exists(WP_CONTENT_DIR.'/upgrade-temp-backup') === false && count(scandir(WP_CONTENT_DIR.'/upgrade')) === 2
+        array_filter(list_files(WP_CONTENT_DIR.'/upgrade-temp-backup',100,[],true), 'is_file') === [] && count(scandir(WP_CONTENT_DIR.'/upgrade')) === 2
     # The current theme is custom-child-theme
     - |
         wp_get_theme()->get_stylesheet() === 'custom-child-theme'
