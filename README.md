@@ -32,12 +32,12 @@ option:
     "users_can_register": "0"
     "admin_email": "admin@szepe.net"
     "wp_mailfrom_ii_email": "webmaster@szepe.net"
-    "woocommerce_shop_page_id": "5372"
-    "woocommerce_cart_page_id": "5362"
-    "woocommerce_checkout_page_id": "5363"
-    "woocommerce_myaccount_page_id": "15"
-    "woocommerce_refund_returns_page_id": "5364"
-    "woocommerce_terms_page_id": "74"
+    "woocommerce_shop_page_id": "101"
+    "woocommerce_cart_page_id": "102"
+    "woocommerce_checkout_page_id": "103"
+    "woocommerce_myaccount_page_id": "104"
+    "woocommerce_refund_returns_page_id": "105"
+    "woocommerce_terms_page_id": "106"
     "woocommerce_coming_soon": "no"
     "woocommerce_logs_logging_enabled": "yes"
     "woocommerce_logs_level_threshold": "info"
@@ -48,9 +48,9 @@ constant:
     "DISABLE_WP_CRON": true
     "WP_CACHE_KEY_SALT": "prefix:"
     # Namespaced constant
-    "Company\Theme\VERSION": "0.0.0"
+    "Company\Theme\VERSION": "1.0.0"
     # Class constant
-    "Company\Theme::VERSION": "0.0.0"
+    "Company\Theme::VERSION": "1.0.0"
 class_method:
     "Company::version": "1.0.0"
 # Should return true
@@ -127,7 +127,7 @@ eval:
     # Tracking code is included in the homepage
     - >
         strpos(wp_remote_retrieve_body(wp_remote_get(home_url())),
-            '<script async src="https://www.googletagmanager.com/gtag/js?id=G-1111111111"></script>') > 10000
+            '<script async src="https://www.googletagmanager.com/gtag/js?id=G-1234567890"></script>') > 10000
     # Pinging of https://healthchecks.io/ was successful
     - |
         wp_remote_retrieve_response_code(wp_remote_get('https://hc-ping.com/YOUR-HC-UUID')) === 200
