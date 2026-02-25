@@ -14,7 +14,7 @@ wp package install https://github.com/szepeviktor/critical-site-health.git
 
 ## Configuration
 
-There are 5 kinds of checks.
+There are four kinds of checks.
 
 - options
 - constants
@@ -120,7 +120,7 @@ eval:
         array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ['paypal']
     # woocommerce: REST API keys are unchanged
     - |
-        trim(WP_CLI::runcommand('db query "CHECKSUM TABLE wp_woocommerce_api_keys EXTENDED" --skip-column-names', ['return' => true])) === "wpdb.wp_woocommerce_api_keys\t1111111111"
+        trim(WP_CLI::runcommand('db query "SELECT BIT_XOR(CAST(CRC32(CONCAT_WS(CHAR(35),key_id,permissions,consumer_key)) AS UNSIGNED)) FROM wp_woocommerce_api_keys;" --skip-column-names', ['return' => true])) === "123456789"
     # robots.txt is generated
     - |
         wp_remote_retrieve_response_code(wp_remote_get(home_url('/robots.txt'))) === 200
