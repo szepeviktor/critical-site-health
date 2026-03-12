@@ -79,6 +79,9 @@ eval:
     # All active plugins are compatible with core
     - |
         array_reduce(get_option('active_plugins'), function ($c,$p) {return $c && version_compare(get_plugin_data(WP_PLUGIN_DIR.'/'.$p)['RequiresWP'],get_bloginfo('version'),'<=');},true)
+    # The active parent and child theme are compatible with core
+    - |
+        version_compare(wp_get_theme()['RequiresWP'],get_bloginfo('version'),'<=') && version_compare(wp_get_theme(wp_get_theme()->get_template())['RequiresWP'],get_bloginfo('version'),'<=')
     # Auto updated plugins exist
     - |
         array_reduce(get_option('auto_update_plugins',[]), function($e,$p) {return $e && file_exists(WP_PLUGIN_DIR.'/'.$p);},true)
@@ -97,6 +100,9 @@ eval:
     # WP-Cron is running
     - |
         ($c=_get_cron_array()) && array_key_first(ksort($c, SORT_NUMERIC) ? $c : []) > time() - HOUR_IN_SECONDS
+    # No tag-category collision
+    - |
+        (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['category','post_tag'],'hide_empty'=>false])))
     # Redis extension is installed
     - |
         in_array('redis', get_loaded_extensions())
@@ -121,6 +127,9 @@ eval:
     # woocommerce: REST API keys are unchanged
     - |
         trim(WP_CLI::runcommand('db query "SELECT BIT_XOR(CAST(CRC32(CONCAT_WS(CHAR(35),key_id,permissions,consumer_key)) AS UNSIGNED)) FROM wp_woocommerce_api_keys;" --skip-column-names', ['return' => true])) === "123456789"
+    # woocommerce: No product tag-category collision
+    - |
+        (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['product_cat','product_tag'],'hide_empty'=>false])))
     # robots.txt is generated
     - |
         wp_remote_retrieve_response_code(wp_remote_get(home_url('/robots.txt'))) === 200
