@@ -32,6 +32,7 @@ option:
     "users_can_register": "0"
     "admin_email": "admin@szepe.net"
     "wp_mailfrom_ii_email": "webmaster@szepe.net"
+    "elementor_safe_mode": ""
     "woocommerce_shop_page_id": "101"
     "woocommerce_cart_page_id": "102"
     "woocommerce_checkout_page_id": "103"
@@ -130,6 +131,13 @@ eval:
     # woocommerce: No product tag-category collision
     - |
         (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['product_cat','product_tag'],'hide_empty'=>false])))
+    # events-calendar-pro: License is valid
+    # wp option list --search=pue_key_status_*
+    - |
+        array_filter(get_option('tribe_pue_key_notices')) === []
+    # Divi: License is valid
+    - |
+        get_site_option('et_account_status') === 'active'
     # robots.txt is generated
     - |
         wp_remote_retrieve_response_code(wp_remote_get(home_url('/robots.txt'))) === 200
