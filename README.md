@@ -70,13 +70,13 @@ eval:
         wp_get_environment_type() === 'production'
     # Core files are unchanged
     - |
-        WP_CLI::runcommand('core verify-checksums --quiet', ['return' => 'return_code']) === 0
+        WP_CLI::runcommand('core verify-checksums --quiet', ['return' => 'return_code', 'exit_error' => false]) === 0
     # Plugin files are unchanged
     - |
-        WP_CLI::runcommand('plugin verify-checksums --quiet --all', ['return' => 'return_code']) === 0
+        WP_CLI::runcommand('plugin verify-checksums --quiet --all', ['return' => 'return_code', 'exit_error' => false]) === 0
     # Database is up-to-date
     - |
-        WP_CLI::runcommand('core update-db --quiet --dry-run', ['return' => 'return_code']) === 0
+        WP_CLI::runcommand('core update-db --quiet --dry-run', ['return' => 'return_code', 'exit_error' => false]) === 0
     # All active plugins are compatible with core
     - |
         array_reduce(get_option('active_plugins'), function ($c,$p) {return $c && version_compare(get_plugin_data(WP_PLUGIN_DIR.'/'.$p)['RequiresWP'],get_bloginfo('version'),'<=');},true)
@@ -97,7 +97,7 @@ eval:
         md5(wp_get_custom_css()) === 'd41d8cd98f00b204e9800998ecf8427e'
     # There is 1 administrator
     - |
-        WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true]) === '1'
+        WP_CLI::runcommand('user list --role=administrator --format=count', ['return' => true, 'exit_error' => false]) === '1'
     # WP-Cron is running
     - |
         ($c=_get_cron_array()) && array_key_first(ksort($c, SORT_NUMERIC) ? $c : []) > time() - HOUR_IN_SECONDS
@@ -112,10 +112,10 @@ eval:
         get_plugins()['wp-redis/wp-redis.php']['Name'] === 'WP Redis'
     # wp-redis: WP Redis is in use
     - |
-        WP_CLI::runcommand('cache type', ['return' => true]) === 'Redis'
+        WP_CLI::runcommand('cache type', ['return' => true, 'exit_error' => false]) === 'Redis'
     # wp-redis: No transients in the database
     - |
-        WP_CLI::runcommand('transient list --quiet --format=count', ['return' => true]) === '0'
+        WP_CLI::runcommand('transient list --quiet --format=count', ['return' => true, 'exit_error' => false]) === '0'
     # webp-uploads: WebP uploading is enabled
     - |
         function_exists('perflab_get_module_settings') && perflab_get_module_settings()['images/webp-uploads']['enabled'] === '1'
@@ -127,7 +127,7 @@ eval:
         array_keys(WC_Payment_Gateways::instance()->get_available_payment_gateways()) === ['paypal']
     # woocommerce: REST API keys are unchanged
     - |
-        trim(WP_CLI::runcommand('db query "SELECT BIT_XOR(CAST(CRC32(CONCAT_WS(CHAR(35),key_id,permissions,consumer_key)) AS UNSIGNED)) FROM wp_woocommerce_api_keys;" --skip-column-names', ['return' => true])) === "123456789"
+        trim(WP_CLI::runcommand('db query "SELECT BIT_XOR(CAST(CRC32(CONCAT_WS(CHAR(35),key_id,permissions,consumer_key)) AS UNSIGNED)) FROM wp_woocommerce_api_keys;" --skip-column-names', ['return' => true, 'exit_error' => false])) === "123456789"
     # woocommerce: No product tag-category collision
     - |
         (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['product_cat','product_tag'],'hide_empty'=>false])))
