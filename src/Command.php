@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace SzepeViktor\WP_CLI\SiteHealth;
 
 use Mustangostang\Spyc;
@@ -14,7 +12,7 @@ use function get_option;
 
 class Command extends WP_CLI_Command
 {
-    protected bool $hadWarning;
+    protected bool $hadWarning = false;
 
     /**
      * Checks critical site health values from a YAML file.
@@ -42,11 +40,9 @@ class Command extends WP_CLI_Command
 
         try {
             $checks = Spyc::YAMLLoad($yamlPath);
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             WP_CLI::error(sprintf('Failed to parse YAML: %s', $e->getMessage()));
         }
-
-        $this->hadWarning = false;
 
         // Option values
         if (isset($checks['option']) && is_array($checks['option'])) {
@@ -104,7 +100,7 @@ class Command extends WP_CLI_Command
                     if ($actual !== $expected) {
                         $this->emitWarning('Method %s: expected "%s", got "%s"', $callable, $expected, $actual);
                     }
-                } catch (\Throwable $e) {
+                } catch (\Exception $e) {
                     $this->emitWarning('Method %s failed: %s', $callable, $e->getMessage());
                 }
             }
@@ -134,9 +130,12 @@ class Command extends WP_CLI_Command
         WP_CLI::success('Critical site health checks passed.');
     }
 
-    protected function emitWarning(string $format, ...$args): void
+    protected function emitWarning()
     {
-        WP_CLI::error(sprintf($format, ...$args), false);
+        $args = func_get_args();
+        $format = array_shift($args);
+
+        WP_CLI::error(call_user_func_array('sprintf', array_merge(array($format), $args)), false);
         $this->hadWarning = true;
     }
 }
