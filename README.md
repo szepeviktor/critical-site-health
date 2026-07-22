@@ -32,6 +32,7 @@ option:
     "users_can_register": "0"
     "admin_email": "admin@szepe.net"
     "wp_mailfrom_ii_email": "webmaster@szepe.net"
+    "link_manager_enabled": "0"
     "elementor_safe_mode": ""
     "woocommerce_shop_page_id": "101"
     "woocommerce_cart_page_id": "102"
