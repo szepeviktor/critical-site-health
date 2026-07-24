@@ -14,9 +14,10 @@ wp package install https://github.com/szepeviktor/critical-site-health.git
 
 ## Configuration
 
-There are four kinds of checks.
+There are five kinds of checks.
 
 - options
+- active plugins
 - constants
 - static class methods
 - PHP expressions
@@ -43,6 +44,8 @@ option:
     "woocommerce_coming_soon": "no"
     "woocommerce_logs_logging_enabled": "yes"
     "woocommerce_logs_level_threshold": "info"
+plugin_active:
+    - "woocommerce/woocommerce.php"
 constant:
     "WP_DEBUG": false
     "SCRIPT_DEBUG": false

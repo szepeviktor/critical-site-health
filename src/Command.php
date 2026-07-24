@@ -7,6 +7,7 @@ use WP_CLI;
 use WP_CLI_Command;
 
 use function get_option;
+use function is_plugin_active;
 
 // phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
 
@@ -24,7 +25,7 @@ class Command extends WP_CLI_Command
      *
      * ## EXAMPLES
      *
-     *     wp critical-site-health check /path/to/critical-site-health.yml
+     *     wp site-health check /path/to/critical-site-health.yml
      *
      * @when after_wp_load
      */
@@ -52,6 +53,17 @@ class Command extends WP_CLI_Command
                 $actual = get_option($option);
                 if ($actual !== $expected) {
                     $this->emitWarning('Option %s: expected "%s", got "%s"', $option, $expected, $actual);
+                }
+            }
+        }
+
+        // Active plugins
+        if (isset($checks['plugin_active']) && is_array($checks['plugin_active'])) {
+            foreach ($checks['plugin_active'] as $plugin) {
+                WP_CLI::debug('Checking active plugin: ' . $plugin, 'site-health');
+
+                if (! is_plugin_active($plugin)) {
+                    $this->emitWarning('Plugin "%s" is not active.', $plugin);
                 }
             }
         }
