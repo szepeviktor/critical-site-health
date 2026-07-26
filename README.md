@@ -27,6 +27,7 @@ There are five kinds of checks.
 # I should be self-sufficient.
 option:
     "home": "https://example.com"
+    "permalink_structure": "/%postname%/"
     "blog_public": "1"
     "blog_charset": "UTF-8"
     "WPLANG": "en_US"
