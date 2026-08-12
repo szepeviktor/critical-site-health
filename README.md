@@ -136,6 +136,9 @@ eval:
     # woocommerce: No product tag-category collision
     - |
         (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['product_cat','product_tag'],'hide_empty'=>false])))
+    # woocommerce: a REST API key was used recently
+    - |
+        strtotime(WP_CLI::runcommand('db query "SELECT last_access FROM wp_woocommerce_api_keys WHERE key_id = 11" --skip-column-names', ['return' => true, 'exit_error' => false])) > time() - HOUR_IN_SECONDS
     # events-calendar-pro: License is valid
     # wp option list --search=pue_key_status_*
     - |
