@@ -3,6 +3,7 @@
 namespace SzepeViktor\WP_CLI\SiteHealth;
 
 use Mustangostang\Spyc;
+use RuntimeException;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -31,6 +32,7 @@ class Command extends WP_CLI_Command
      */
     public function check($args, $assocArgs)
     {
+        $this->hadWarning = false;
         $yamlPath = $args[0];
 
         if (! file_exists($yamlPath)) {
@@ -135,6 +137,11 @@ class Command extends WP_CLI_Command
             }
         }
 
+        // PHP-FPM eval expressions
+        if (isset($checks['web_eval']) && is_array($checks['web_eval']) && $checks['web_eval'] !== []) {
+            $this->_runWebEval($checks['web_eval']);
+        }
+
         if ($this->hadWarning) {
             WP_CLI::error('Health check completed with warnings.');
         }
@@ -147,7 +154,41 @@ class Command extends WP_CLI_Command
         $args = func_get_args();
         $format = array_shift($args);
 
-        WP_CLI::error(call_user_func_array('sprintf', array_merge(array($format), $args)), false);
+        WP_CLI::error(call_user_func_array('sprintf', array_merge([$format], $args)), false);
         $this->hadWarning = true;
+    }
+
+    /**
+     * Run PHP expressions through the web server runtime.
+     *
+     * @param array<int, mixed> $expressions
+     *     Expressions to evaluate.
+     *
+     * @return void
+     */
+    private function _runWebEval(array $expressions): void
+    {
+        try {
+            $client = new WebEvalClient(dirname(__DIR__));
+        } catch (RuntimeException $exception) {
+            $this->emitWarning('web_eval failed: %s', $exception->getMessage());
+
+            return;
+        }
+
+        foreach ($expressions as $expression) {
+            if (! is_string($expression) || $expression === '') {
+                $this->emitWarning('web_eval expressions must be non-empty strings.');
+                continue;
+            }
+
+            try {
+                if (! $client->evaluate($expression)) {
+                    $this->emitWarning('Web eval failed: %s', $expression);
+                }
+            } catch (RuntimeException $exception) {
+                $this->emitWarning('web_eval request failed for %s: %s', $expression, $exception->getMessage());
+            }
+        }
     }
 }
