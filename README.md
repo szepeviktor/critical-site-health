@@ -63,6 +63,9 @@ class_method:
     "Company::version": "1.0.0"
 # Should return true
 eval:
+    # PHP version is not changed
+    - |
+        PHP_VERSION_ID === 80100
     # Check file owner
     - |
         exec('find /home/PROJECT/website/code/ -not -user $USER', $output, $exit_status) === '' && $exit_status === 0
@@ -161,10 +164,99 @@ eval:
 # These expressions run through HTTPS in the PHP-FPM web environment.
 web_eval_private_key: "/secure/path/web-eval-ed25519"
 web_eval:
+    # This is the PHP-FPM runtime
     - |
         PHP_SAPI === 'fpm-fcgi'
+    # HTTP host is available
     - |
         isset($_SERVER['HTTP_HOST'])
+    # This is a production environment
+    - |
+        getenv('WP_ENVIRONMENT_TYPE') === 'production'
+    # PHP version is supported
+    - |
+        PHP_VERSION_ID >= 70400
+    # PHP version is not changed
+    - |
+        PHP_VERSION_ID === 80100
+    # PHP error display is disabled
+    - |
+        ini_get('display_errors') === ''
+    # PHP version exposure is disabled
+    - |
+        ini_get('expose_php') === ''
+    # .user.ini files are disabled
+    - |
+        ini_get('user_ini.filename') === ''
+    # PHP timezone is UTC
+    - |
+        ini_get('date.timezone') === 'UTC'
+    # PHP memory limit is unchanged
+    - |
+        ini_get('memory_limit') === '128M'
+    # PHP input variables limit is unchanged
+    - |
+        ini_get('max_input_vars') === '1000'
+    # PHP upload size is unchanged
+    - |
+        ini_get('upload_max_filesize') === '4M'
+    # PHP POST size is unchanged
+    - |
+        ini_get('post_max_size') === '4M'
+    # PHP file upload count is unchanged
+    - |
+        ini_get('max_file_uploads') === '20'
+    # OPcache is installed
+    - |
+        extension_loaded('Zend OPcache')
+    # OPcache memory size is unchanged
+    - |
+        ini_get('opcache.memory_consumption') === '256'
+    # OPcache strings buffer size is unchanged
+    - |
+        ini_get('opcache.interned_strings_buffer') === '16'
+    # OPcache file count is unchanged
+    - |
+        ini_get('opcache.max_accelerated_files') === '10000'
+    # cURL extension is installed
+    - |
+        extension_loaded('curl')
+    # Intl extension is installed
+    - |
+        extension_loaded('intl')
+    # Mbstring extension is installed
+    - |
+        extension_loaded('mbstring')
+    # MySQLi extension is installed
+    - |
+        extension_loaded('mysqli')
+    # OpenSSL extension is installed
+    - |
+        extension_loaded('openssl')
+    # Sodium extension is installed
+    - |
+        extension_loaded('sodium')
+    # XML extensions are installed
+    - |
+        extension_loaded('xml') && extension_loaded('SimpleXML') && extension_loaded('xmlreader') && extension_loaded('dom')
+    # Image processing extension is installed
+    - |
+        extension_loaded('gd') || extension_loaded('imagick')
+    # Deprecated mcrypt extension is disabled
+    - |
+        ! extension_loaded('mcrypt')
+    # Deprecated mysql extension is disabled
+    - |
+        ! extension_loaded('mysql')
+    # PHP upload temporary directory is writable
+    - |
+        ($d = ini_get('upload_tmp_dir')) === '' || (file_exists($d) && is_writable($d))
+    # PHP system temporary directory is writable
+    - |
+        ($d = ini_get('sys_temp_dir')) === '' || (file_exists($d) && is_writable($d))
+    # PHP session directory is writable
+    - |
+        ($d = ini_get('session.save_path')) === '' || (file_exists($d) && is_writable($d))
 ```
 
 ## PHP-FPM web bridge
