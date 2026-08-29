@@ -37,7 +37,6 @@ option:
     "wp_mailfrom_ii_email": "webmaster@szepe.net"
     "link_manager_enabled": "0"
     "elementor_safe_mode": ""
-    "woocommerce_coming_soon": "no"
     "woocommerce_shop_page_id": "101"
     "woocommerce_cart_page_id": "102"
     "woocommerce_checkout_page_id": "103"
@@ -167,15 +166,12 @@ web_eval:
     # This is the PHP-FPM runtime
     - |
         PHP_SAPI === 'fpm-fcgi'
-    # HTTP host is available
+    # HTTP host is unchanged
     - |
-        isset($_SERVER['HTTP_HOST'])
+        $_SERVER['HTTP_HOST'] === 'example.com'
     # This is a production environment
     - |
-        getenv('WP_ENVIRONMENT_TYPE') === 'production'
-    # PHP version is supported
-    - |
-        PHP_VERSION_ID >= 70400
+        wp_get_environment_type() === 'production'
     # PHP minor version is not changed
     - |
         PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 1
@@ -239,7 +235,7 @@ web_eval:
     # XML extensions are installed
     - |
         extension_loaded('xml') && extension_loaded('SimpleXML') && extension_loaded('xmlreader') && extension_loaded('dom')
-    # Image processing extension is installed
+    # Image processing is available
     - |
         extension_loaded('gd') || extension_loaded('imagick')
     # Deprecated mcrypt extension is disabled
