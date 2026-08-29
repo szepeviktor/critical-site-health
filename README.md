@@ -63,9 +63,9 @@ class_method:
     "Company::version": "1.0.0"
 # Should return true
 eval:
-    # PHP version is not changed
+    # PHP minor version is not changed
     - |
-        PHP_VERSION_ID === 80100
+        PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 1
     # Check file owner
     - |
         exec('find /home/PROJECT/website/code/ -not -user $USER', $output, $exit_status) === '' && $exit_status === 0
@@ -176,9 +176,9 @@ web_eval:
     # PHP version is supported
     - |
         PHP_VERSION_ID >= 70400
-    # PHP version is not changed
+    # PHP minor version is not changed
     - |
-        PHP_VERSION_ID === 80100
+        PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 1
     # PHP error display is disabled
     - |
         ini_get('display_errors') === ''
