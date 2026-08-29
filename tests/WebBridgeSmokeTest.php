@@ -96,7 +96,7 @@ final class WP_REST_Response
 /**
  * @var array<string, int>
  */
-$nonceOptions = [];
+$nonceTransients = [];
 
 function is_ssl(): bool
 {
@@ -120,18 +120,22 @@ function expect(bool $condition, string $message): void
 }
 
 /**
- * @param mixed $value
- * @param mixed $deprecated
  */
-function add_option(string $name, $value, $deprecated = '', bool $autoload = false): bool
+function get_transient(string $transient)
 {
-    global $nonceOptions;
+    global $nonceTransients;
 
-    if (array_key_exists($name, $nonceOptions)) {
-        return false;
-    }
+    return $nonceTransients[$transient] ?? false;
+}
 
-    $nonceOptions[$name] = (int) $value;
+/**
+ * @param mixed $value
+ */
+function set_transient(string $transient, $value, int $expiration = 0): bool
+{
+    global $nonceTransients;
+
+    $nonceTransients[$transient] = (int) $value;
 
     return true;
 }
@@ -200,28 +204,6 @@ function wp_remote_retrieve_body(array $response): string
 {
     return $response['body'];
 }
-
-$wpdb = new class () {
-    public string $options = 'wp_options';
-
-    public function esc_like(string $value): string
-    {
-        return $value;
-    }
-
-    /**
-     * @param mixed ...$values
-     */
-    public function prepare(string $query, ...$values): string
-    {
-        return $query;
-    }
-
-    public function query(string $query): int
-    {
-        return 0;
-    }
-};
 
 $keyPair = sodium_crypto_sign_keypair();
 $secretKey = sodium_crypto_sign_secretkey($keyPair);

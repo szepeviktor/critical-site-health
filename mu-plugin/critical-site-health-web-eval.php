@@ -39,7 +39,7 @@ if (! defined('ABSPATH')) {
  */
 final class Endpoint
 {
-    private const NONCE_PREFIX = '_csh_web_eval_nonce_';
+    private const NONCE_TRANSIENT_PREFIX = 'csh_web_eval_nonce_';
     private const MAX_BODY_BYTES = 65536;
     private const MAX_EXPRESSION_BYTES = 8192;
     private const MAX_CLOCK_SKEW = 60;
@@ -106,13 +106,8 @@ final class Endpoint
             );
         }
 
-        $nonceAdded = add_option(
-            self::NONCE_PREFIX . hash('sha256', $nonce),
-            time(),
-            '',
-            false
-        );
-        if (! $nonceAdded) {
+        $nonceTransient = self::NONCE_TRANSIENT_PREFIX . hash('sha256', $nonce);
+        if (get_transient($nonceTransient) !== false) {
             return new WP_Error(
                 'csh_replay',
                 'Authentication failed.',
@@ -120,7 +115,15 @@ final class Endpoint
             );
         }
 
-        return true;
+        if (set_transient($nonceTransient, time(), self::MAX_CLOCK_SKEW * 2)) {
+            return true;
+        }
+
+        return new WP_Error(
+            'csh_replay',
+            'Authentication failed.',
+            ['status' => 409]
+        );
     }
 
     /**
@@ -159,26 +162,6 @@ final class Endpoint
         );
     }
 
-    /**
-     * Delete stale nonce records.
-     *
-     * @return void
-     */
-    private static function _deleteExpiredNonces(): void
-    {
-        global $wpdb;
-
-        $maximumAge = time() - (self::MAX_CLOCK_SKEW * 2);
-
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options}
-                    WHERE option_name LIKE %s AND option_value < %d",
-                $wpdb->esc_like(self::NONCE_PREFIX) . '%',
-                $maximumAge
-            )
-        );
-    }
 }
 
 add_action('rest_api_init', [Endpoint::class, 'register']);

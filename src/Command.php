@@ -139,7 +139,7 @@ class Command extends WP_CLI_Command
 
         // PHP-FPM eval expressions
         if (isset($checks['web_eval']) && is_array($checks['web_eval']) && $checks['web_eval'] !== []) {
-            $this->_runWebEval($checks['web_eval']);
+            $this->runWebEval($checks['web_eval']);
         }
 
         if ($this->hadWarning) {
@@ -166,7 +166,7 @@ class Command extends WP_CLI_Command
      *
      * @return void
      */
-    private function _runWebEval(array $expressions): void
+    private function runWebEval(array $expressions): void
     {
         try {
             $client = new WebEvalClient(dirname(__DIR__));
