@@ -173,7 +173,7 @@ Ed25519 key remains in the WP-CLI environment; the web server receives only its 
 Generate a raw libsodium Ed25519 key pair in the project root:
 
 ```shell
-rtk php8.5 bin/generate-web-eval-keys.php
+bin/generate-web-eval-keys.php
 ```
 
 The command writes the two key files to the project root and replaces an existing pair.

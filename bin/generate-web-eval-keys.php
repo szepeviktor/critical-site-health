@@ -1,7 +1,8 @@
+#!/usr/bin/env php
 <?php
+
 /**
  * Generate raw Ed25519 key files for web_eval checks.
- * PHP version 7.4 or later.
  *
  * @category WordPress
  * @package  SiteHealthCommand
