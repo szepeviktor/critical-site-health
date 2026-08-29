@@ -25,7 +25,6 @@ use RuntimeException;
  */
 final class WebEvalClient
 {
-    private const PRIVATE_KEY_FILENAME = 'web-eval-ed25519';
     private const MAX_BODY_BYTES = 65536;
 
     private string $_privateKey;
@@ -33,13 +32,12 @@ final class WebEvalClient
     /**
      * Load and validate the raw Ed25519 private key.
      *
-     * @param string $keyDirectory Package root containing the private key.
+     * @param string $privateKeyPath Private key file path.
      */
-    public function __construct(string $keyDirectory)
+    public function __construct(string $privateKeyPath)
     {
-        $path = $keyDirectory . DIRECTORY_SEPARATOR . self::PRIVATE_KEY_FILENAME;
-        $this->_privateKey = (string) @file_get_contents($path);
-        $permissions = @fileperms($path);
+        $this->_privateKey = (string) @file_get_contents($privateKeyPath);
+        $permissions = @fileperms($privateKeyPath);
 
         if (! function_exists('sodium_crypto_sign_detached')
             || strlen($this->_privateKey) !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES

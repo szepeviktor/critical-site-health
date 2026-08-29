@@ -139,7 +139,8 @@ class Command extends WP_CLI_Command
 
         // PHP-FPM eval expressions
         if (isset($checks['web_eval']) && is_array($checks['web_eval']) && $checks['web_eval'] !== []) {
-            $this->runWebEval($checks['web_eval']);
+            $privateKeyPath = isset($checks['web_eval_private_key']) ? $checks['web_eval_private_key'] : null;
+            $this->runWebEval($checks['web_eval'], $privateKeyPath);
         }
 
         if ($this->hadWarning) {
@@ -163,13 +164,21 @@ class Command extends WP_CLI_Command
      *
      * @param array<int, mixed> $expressions
      *     Expressions to evaluate.
+     * @param mixed $privateKeyPath
+     *     Private key file path from configuration.
      *
      * @return void
      */
-    private function runWebEval(array $expressions): void
+    private function runWebEval(array $expressions, $privateKeyPath): void
     {
+        if (! is_string($privateKeyPath) || $privateKeyPath === '') {
+            $this->emitWarning('web_eval_private_key must be a non-empty string.');
+
+            return;
+        }
+
         try {
-            $client = new WebEvalClient(dirname(__DIR__));
+            $client = new WebEvalClient($privateKeyPath);
         } catch (RuntimeException $exception) {
             $this->emitWarning('web_eval failed: %s', $exception->getMessage());
 
@@ -181,6 +190,8 @@ class Command extends WP_CLI_Command
                 $this->emitWarning('web_eval expressions must be non-empty strings.');
                 continue;
             }
+
+            WP_CLI::debug('Running web eval: ' . $expression, 'site-health');
 
             try {
                 if (! $client->evaluate($expression)) {

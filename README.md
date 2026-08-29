@@ -159,10 +159,12 @@ eval:
     - |
         wp_remote_retrieve_response_code(wp_remote_get('https://hc-ping.com/YOUR-HC-UUID')) === 200
 # These expressions run through HTTPS in the PHP-FPM web environment.
+web_eval_private_key: "/secure/path/web-eval-ed25519"
 web_eval:
-    - "PHP_SAPI === 'fpm-fcgi'"
-    - "isset($_SERVER['HTTP_HOST'])"
-    - "get_option('blog_public') === '1'"
+    - |
+        PHP_SAPI === 'fpm-fcgi'
+    - |
+        isset($_SERVER['HTTP_HOST'])
 ```
 
 ## PHP-FPM web bridge
@@ -170,24 +172,26 @@ web_eval:
 `web_eval` uses an authenticated REST endpoint provided by the bundled MU-plugin. The private
 Ed25519 key remains in the WP-CLI environment; the web server receives only its public key.
 
-Generate a raw libsodium Ed25519 key pair in the project root:
+Generate a raw libsodium Ed25519 key pair outside `vendor/`:
 
 ```shell
-bin/generate-web-eval-keys.php
+bin/generate-web-eval-keys.php /secure/path
 ```
 
-The command writes the two key files to the project root and replaces an existing pair.
+The command writes the two key files to the target directory and replaces an existing pair.
 
-Install the endpoint and the public key:
+Install the endpoint and both key files outside `vendor/`:
 
 ```shell
 install -m 0644 mu-plugin/critical-site-health-web-eval.php \
     /path/to/wp-content/mu-plugins/critical-site-health-web-eval.php
+install -m 0600 web-eval-ed25519 \
+    /secure/path/web-eval-ed25519
 install -m 0644 web-eval-ed25519.pub \
     /secure/path/web-eval-ed25519.pub
 ```
 
-The CLI always reads the raw 64-byte `web-eval-ed25519` private key from the package root. The
+The CLI reads the raw 64-byte private key from `web_eval_private_key` in the YAML file. The
 MU-plugin reads the raw 32-byte public key from the path defined in `wp-config.php`:
 
 ```php

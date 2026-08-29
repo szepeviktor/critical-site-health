@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Critical Site Health Web Eval Bridge
  * Description: Authenticated PHP-FPM expression evaluator for Critical Site Health.
- * Version: 1.0.0
+ * Version: 1.3.0
  * PHP version 7.4 or later.
  *
  * @category WordPress

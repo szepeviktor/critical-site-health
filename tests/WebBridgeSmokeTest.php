@@ -267,7 +267,7 @@ if (file_put_contents($privateKeyPath, $secretKey) === false) {
 chmod($privateKeyPath, 0600);
 
 require dirname(__DIR__) . '/src/WebEvalClient.php';
-$client = new SzepeViktor\WP_CLI\SiteHealth\WebEvalClient($keyDirectory);
+$client = new SzepeViktor\WP_CLI\SiteHealth\WebEvalClient($privateKeyPath);
 expect($client->evaluate('true') === true, 'The signed client request failed.');
 
 unlink($privateKeyPath);
