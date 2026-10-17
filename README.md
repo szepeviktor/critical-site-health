@@ -137,12 +137,23 @@ eval:
     # woocommerce: REST API keys are unchanged
     - |
         trim(WP_CLI::runcommand('db query "SELECT BIT_XOR(CAST(CRC32(CONCAT_WS(CHAR(35),key_id,permissions,consumer_key)) AS UNSIGNED)) FROM wp_woocommerce_api_keys;" --skip-column-names', ['return' => true, 'exit_error' => false])) === "123456789"
+    # woocommerce: Tax rates are unchanged (example: ID 1, HU, 27%; ID 2, DE, 19%; both without a state)
+    # Replace the expected value with your tax rates and adjust the table prefix if needed.
+    - >
+        trim(WP_CLI::runcommand('db query "SELECT GROUP_CONCAT(tax_rate_id,tax_rate_country,tax_rate_state,tax_rate ORDER BY tax_rate_id) FROM wp_woocommerce_tax_rates;" --skip-column-names --quiet', ['return' => true, 'exit_error' => false]))
+        === '1HU27.0000,2DE19.0000'
     # woocommerce: No product tag-category collision
     - |
         (fn($s) => count($s) === count(array_unique($s)))(array_map(fn($t) => $t->slug,get_terms(['taxonomy'=>['product_cat','product_tag'],'hide_empty'=>false])))
     # woocommerce: a REST API key was used recently
     - |
         strtotime(WP_CLI::runcommand('db query "SELECT last_access FROM wp_woocommerce_api_keys WHERE key_id = 11" --skip-column-names', ['return' => true, 'exit_error' => false])) > time() - HOUR_IN_SECONDS
+    # Action Scheduler: No pending actions overdue by more than one hour
+    - |
+        ActionScheduler::store()->query_actions(['status' => ActionScheduler_Store::STATUS_PENDING, 'date' => new DateTime('-1 hour', new DateTimeZone('UTC')), 'date_compare' => '<']) === []
+    # Action Scheduler: At least one action completed in the last hour
+    - |
+        count(ActionScheduler::store()->query_actions(['status' => ActionScheduler_Store::STATUS_COMPLETE, 'modified' => new DateTime('-1 hour', new DateTimeZone('UTC')), 'modified_compare' => '>=']) ?? []) > 0
     # events-calendar-pro: License is valid
     # wp option list --search=pue_key_status_*
     - |
@@ -166,15 +177,15 @@ web_eval:
     # This is the PHP-FPM runtime
     - |
         PHP_SAPI === 'fpm-fcgi'
+    # PHP minor version is not changed
+    - |
+        PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 1
     # HTTP host is unchanged
     - |
         $_SERVER['HTTP_HOST'] === 'example.com'
     # This is a production environment
     - |
         wp_get_environment_type() === 'production'
-    # PHP minor version is not changed
-    - |
-        PHP_MAJOR_VERSION === 8 && PHP_MINOR_VERSION === 1
     # PHP error display is disabled
     - |
         ini_get('display_errors') === ''
