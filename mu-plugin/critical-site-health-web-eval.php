@@ -3,14 +3,12 @@
 /**
  * Plugin Name: Critical Site Health Web Eval Bridge
  * Description: Authenticated PHP-FPM expression evaluator for Critical Site Health.
+ * Plugin URI: https://github.com/szepeviktor/critical-site-health
+ * Author: Viktor Szépe
+ * Author URI: https://github.com/szepeviktor
+ * License: MIT
+ * Requires PHP: 7.4
  * Version: 1.3.0
- * PHP version 7.4 or later.
- *
- * @category WordPress
- * @package  CriticalSiteHealth
- * @author   Viktor Szépe <viktor@szepe.net>
- * @license  https://opensource.org/licenses/MIT MIT
- * @link     https://github.com/szepeviktor/critical-site-health
  */
 
 declare(strict_types=1);
